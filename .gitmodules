@@ -1,0 +1,6 @@
+[submodule "libssh"]
+	path = libssh
+	url = https://github.com/CanonicalLtd/libssh.git
+[submodule "boringssl"]
+	path = boringssl
+	url = https://boringssl.googlesource.com/boringssl
