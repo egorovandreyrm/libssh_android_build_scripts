@@ -2,21 +2,31 @@
 
 set -e
 
-export ANDROID_NDK_ROOT=/home/andrey/Android/Sdk/ndk-bundle
-ANDROID_API="armeabi-v7a"
+# config
+ANDROID_API="arm64-v8a"
 API_LEVEL=21
-NDK_TOOLCHAIN_PATH="/home/andrey/Android/Sdk/ndk-bundle/build/cmake/android.toolchain.cmake"
-BUILD_SHARED_LIB=0
+ANDROID_SDK_PATH="/home/andrey/Android/Sdk"
+BUILD_SHARED_LIB=1
+#
+
+#export ANDROID_NDK_ROOT=/home/andrey/Android/Sdk/ndk-bundle
+
+if [[ "$1" != "" ]]; then
+    ANDROID_API="$1"    
+fi
+
+ANDROID_NDK_ROOT="${ANDROID_SDK_PATH}/ndk-bundle" 
+NDK_TOOLCHAIN_PATH="${ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake"
+
+OUTPUT_LIBS_DIR="libs/${ANDROID_API}"
 
 if [[ "$BUILD_SHARED_LIB" -eq "1" ]]
 then
     libs_files_extension="so"
     build_static_libssh=0
-    OUTPUT_LIBS_DIR="libs_${ANDROID_API}_shared"
 else
     libs_files_extension="a"
     build_static_libssh=1
-    OUTPUT_LIBS_DIR="libs_${ANDROID_API}_static"
 fi
 
 rm boringssl_build_dir_${ANDROID_API} -R || true
@@ -32,6 +42,8 @@ cmake -DANDROID_ABI=${ANDROID_API} \
 ninja -j4
 
 cd ..
+
+mkdir libs || true
 
 rm ${OUTPUT_LIBS_DIR} -R || true
 mkdir ${OUTPUT_LIBS_DIR}
@@ -51,11 +63,14 @@ cmake \
 	-DWITH_EXAMPLES=OFF \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_TOOLCHAIN_FILE=${NDK_TOOLCHAIN_PATH} \
-	-DANDROID_NDK="$ANDROID_NDK_ROOT" \
+	-DANDROID_NDK=${ANDROID_NDK_ROOT} \
 	-DANDROID_NATIVE_API_LEVEL=android-${API_LEVEL} \
 	-DANDROID_ABI=${ANDROID_API} \
 	-DBUILD_STATIC_LIB=${build_static_libssh} \
 	-DBUILT_LIBS_DIR=${OUTPUT_LIBS_DIR} \
+	-DWITH_ZLIB=1 \
+	-DWITH_SERVER=1 \
+	-DWITH_SFTP=1 \
 	..
 	
 cmake --build .

@@ -16,14 +16,9 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-set(WITH_ZLIB TRUE)
 set(WITH_EXAMPLES FALSE)
-set(WITH_SERVER TRUE)
-set(WITH_SFTP TRUE)
-
 set(CLIENT_TESTING OFF)
 set(SERVER_TESTING OFF)
-#set(BUILD_STATIC_LIB TRUE)
 set(WITH_INTERNAL_DOC OFF)
 
 # We'll link with the boringssl implementation in grpc
