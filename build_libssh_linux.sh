@@ -6,18 +6,15 @@ set -e
 ANDROID_API="arm64-v8a"
 API_LEVEL=21
 ANDROID_SDK_PATH="/home/andrey/Android/Sdk"
-BUILD_SHARED_LIB=1
+BUILD_SHARED_LIB=0
+ANDROID_NDK_ROOT="${ANDROID_SDK_PATH}/ndk/20.0.5594570" 
 #
-
-#export ANDROID_NDK_ROOT=/home/andrey/Android/Sdk/ndk-bundle
 
 if [[ "$1" != "" ]]; then
     ANDROID_API="$1"    
 fi
 
-ANDROID_NDK_ROOT="${ANDROID_SDK_PATH}/ndk-bundle" 
 NDK_TOOLCHAIN_PATH="${ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake"
-
 OUTPUT_LIBS_DIR="libs/${ANDROID_API}"
 
 if [[ "$BUILD_SHARED_LIB" -eq "1" ]]
@@ -34,10 +31,11 @@ mkdir boringssl_build_dir_${ANDROID_API}
 cd boringssl_build_dir_${ANDROID_API}
 
 cmake -DANDROID_ABI=${ANDROID_API} \
-      -DCMAKE_TOOLCHAIN_FILE=/home/andrey/Android/Sdk/ndk-bundle/build/cmake/android.toolchain.cmake \
+      -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake \
       -DANDROID_NATIVE_API_LEVEL=${API_LEVEL} \
       -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIB} \
-      -GNinja ../boringssl
+      -GNinja \
+      ../boringssl
       
 ninja -j4
 
@@ -50,6 +48,7 @@ mkdir ${OUTPUT_LIBS_DIR}
 
 cp boringssl_build_dir_${ANDROID_API}/crypto/libcrypto.${libs_files_extension} ${OUTPUT_LIBS_DIR}
 cp boringssl_build_dir_${ANDROID_API}/decrepit/libdecrepit.${libs_files_extension} ${OUTPUT_LIBS_DIR}
+cp boringssl_build_dir_${ANDROID_API}/ssl/libssl.${libs_files_extension} ${OUTPUT_LIBS_DIR}
     
 rm libssh_build_dir_${ANDROID_API} -R || true
 mkdir libssh_build_dir_${ANDROID_API}
